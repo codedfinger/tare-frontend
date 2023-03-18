@@ -94,6 +94,7 @@ import { css } from "styled-components/macro"; //eslint-disable-line
 import LoginPage from "pages/Login.js";
 import LandingPage from "pages/LandingPage";
 import SignupPage from "pages/Signup.js";
+import Dashboard from "pages/Dashboard";
 // import PricingPage from "pages/Pricing.js";
 // import AboutUsPage from "pages/AboutUs.js";
 // import ContactUsPage from "pages/ContactUs.js";
@@ -109,6 +110,11 @@ export default function App() {
   // If you want to disable the animation just use the disabled `prop` like below on your page's component
   // return <AnimationRevealPage disabled>xxxxxxxxxx</AnimationRevealPage>;
 
+  const token = localStorage.getItem('accessToken');
+
+  if(!token) {
+    return <LoginPage />
+  }
 
   return (
     <>
@@ -119,6 +125,8 @@ export default function App() {
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/sign-up" element={<SignupPage />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+
 
 
         </Routes>
