@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import AnimationRevealPage from "helpers/AnimationRevealPage.js";
 import { Container as ContainerBase } from "components/misc/Layouts";
 import tw from "twin.macro";
@@ -9,6 +9,8 @@ import logo from "images/logo.svg";
 import googleIconImageSrc from "images/google-icon.png";
 import twitterIconImageSrc from "images/twitter-icon.png";
 import { ReactComponent as SignUpIcon } from "feather-icons/dist/icons/user-plus.svg";
+
+import swal from 'sweetalert2';
 
 const Container = tw(ContainerBase)`min-h-screen bg-primary-900 text-white font-medium flex justify-center -m-8`;
 const Content = tw.div`max-w-screen-xl m-0 sm:mx-20 sm:my-16 bg-white text-gray-900 shadow sm:rounded-lg flex justify-center flex-1`;
@@ -53,11 +55,10 @@ const IllustrationImage = styled.div`
   ${tw`m-12 xl:m-16 w-full max-w-lg bg-contain bg-center bg-no-repeat`}
 `;
 
-export default ({
-  logoLinkUrl = "#",
-  illustrationImageSrc = illustration,
-  headingText = "Sign Up For Treact",
-  socialButtons = [
+  const logoLinkUrl = "#"
+  const illustrationImageSrc = illustration
+  const headingText = "Sign Up For Treact"
+  const socialButtons = [
     {
       iconImageSrc: googleIconImageSrc,
       text: "Sign Up With Google",
@@ -68,13 +69,56 @@ export default ({
       text: "Sign Up With Twitter",
       url: "https://twitter.com"
     }
-  ],
-  submitButtonText = "Sign Up",
-  SubmitButtonIcon = SignUpIcon,
-  tosUrl = "#",
-  privacyPolicyUrl = "#",
-  signInUrl = "/login"
-}) => (
+  ]
+  const submitButtonText = "Sign Up"
+  const SubmitButtonIcon = SignUpIcon
+  const privacyPolicyUrl = "#"
+  const tosUrl = "#"
+  const signInUrl = "/login"
+
+  //API call to the backend auth login
+  async function signupUser(credentials) {
+    return fetch('http://localhost:5000/api/auth/register', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(credentials)
+    })
+      .then(data => data.json())
+   }
+  
+
+const SignUp = () => {
+  
+  const [email, setEmail] = useState();
+  const [firstName, setFirstName] = useState();
+  const [lastName, setLastName] = useState();
+  const [password, setPassword] = useState();
+
+  const handleSubmit = async e => {
+    e.preventDefault();
+    const response = await signupUser({
+      email,
+      password,
+      firstName,
+      lastName,
+    });
+    console.log("res", response)
+    if (response) {
+      new swal("Success", response.message, "success", {
+        buttons: false,
+        timer: 2000,
+      })
+      .then(() => {
+        window.location.href = "/login";
+      });
+    } else {
+      new swal("Failed", response.message, "error");
+    }
+  }
+
+  return (
   <AnimationRevealPage>
     <Container>
       <Content>
@@ -98,9 +142,11 @@ export default ({
               <DividerTextContainer>
                 <DividerText>Or Sign up with your e-mail</DividerText>
               </DividerTextContainer>
-              <Form>
-                <Input type="email" placeholder="Email" />
-                <Input type="password" placeholder="Password" />
+              <Form onSubmit={handleSubmit}>
+                <Input type="text" placeholder="First Name" onChange={e => setFirstName(e.target.value)} />
+                <Input type="text" placeholder="Last Name" onChange={e => setLastName(e.target.value)} />
+                <Input type="email" placeholder="Email" onChange={e => setEmail(e.target.value)} />
+                <Input type="password" placeholder="Password" onChange={e => setPassword(e.target.value)} />
                 <SubmitButton type="submit">
                   <SubmitButtonIcon className="icon" />
                   <span className="text">{submitButtonText}</span>
@@ -132,4 +178,6 @@ export default ({
       </Content>
     </Container>
   </AnimationRevealPage>
-);
+)};
+
+export default SignUp;
